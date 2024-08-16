@@ -75,6 +75,55 @@ rm -f mr-*
 failed_any=0
 
 #########################################################
+echo '***' Starting crash test.
+
+# generate the correct output
+../mrsequential ../../mrapps/nocrash.so ../pg*txt || exit 1
+sort mr-out-0 > mr-correct-crash.txt
+rm -f mr-out*
+
+rm -f mr-done
+((maybe_quiet $TIMEOUT2 ../mrcoordinator ../pg*txt); touch mr-done ) &
+sleep 1
+
+# start multiple workers
+maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so &
+
+# mimic rpc.go's coordinatorSock()
+SOCKNAME=/var/tmp/5840-mr-`id -u`
+
+( while [ -e $SOCKNAME -a ! -f mr-done ]
+  do
+    maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so
+    sleep 1
+  done ) &
+
+( while [ -e $SOCKNAME -a ! -f mr-done ]
+  do
+    maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so
+    sleep 1
+  done ) &
+
+while [ -e $SOCKNAME -a ! -f mr-done ]
+do
+  maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so
+  sleep 1
+done
+
+wait
+
+rm $SOCKNAME
+sort mr-out* | grep . > mr-crash-all
+if cmp mr-crash-all mr-correct-crash.txt
+then
+  echo '---' crash test: PASS
+else
+  echo '---' crash output is not the same as mr-correct-crash.txt
+  echo '---' crash test: FAIL
+  failed_any=1
+fi
+
+#########################################################
 # first word-count
 
 # generate the correct output
@@ -90,7 +139,7 @@ pid=$!
 # give the coordinator time to create the sockets.
 sleep 1
 
-# start multiple workers.
+start multiple workers.
 (maybe_quiet $TIMEOUT ../mrworker ../../mrapps/wc.so) &
 (maybe_quiet $TIMEOUT ../mrworker ../../mrapps/wc.so) &
 (maybe_quiet $TIMEOUT ../mrworker ../../mrapps/wc.so) &
@@ -279,55 +328,6 @@ else
   failed_any=1
 fi
 rm -f mr-*
-
-#########################################################
-echo '***' Starting crash test.
-
-# generate the correct output
-../mrsequential ../../mrapps/nocrash.so ../pg*txt || exit 1
-sort mr-out-0 > mr-correct-crash.txt
-rm -f mr-out*
-
-rm -f mr-done
-((maybe_quiet $TIMEOUT2 ../mrcoordinator ../pg*txt); touch mr-done ) &
-sleep 1
-
-# start multiple workers
-maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so &
-
-# mimic rpc.go's coordinatorSock()
-SOCKNAME=/var/tmp/5840-mr-`id -u`
-
-( while [ -e $SOCKNAME -a ! -f mr-done ]
-  do
-    maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so
-    sleep 1
-  done ) &
-
-( while [ -e $SOCKNAME -a ! -f mr-done ]
-  do
-    maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so
-    sleep 1
-  done ) &
-
-while [ -e $SOCKNAME -a ! -f mr-done ]
-do
-  maybe_quiet $TIMEOUT2 ../mrworker ../../mrapps/crash.so
-  sleep 1
-done
-
-wait
-
-rm $SOCKNAME
-sort mr-out* | grep . > mr-crash-all
-if cmp mr-crash-all mr-correct-crash.txt
-then
-  echo '---' crash test: PASS
-else
-  echo '---' crash output is not the same as mr-correct-crash.txt
-  echo '---' crash test: FAIL
-  failed_any=1
-fi
 
 #########################################################
 if [ $failed_any -eq 0 ]; then
