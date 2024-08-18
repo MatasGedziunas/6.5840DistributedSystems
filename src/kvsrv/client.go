@@ -10,8 +10,7 @@ import (
 )
 
 type Clerk struct {
-	server *labrpc.ClientEnd
-	// You will have to modify this struct.
+	server   *labrpc.ClientEnd
 	curId    int64
 	clientId int64
 	mu       sync.Mutex
@@ -27,7 +26,7 @@ func nrand() int64 {
 func MakeClerk(server *labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.server = server
-	ck.curId = 0
+	ck.curId = 1
 	ck.clientId = int64(nrand())
 	// You'll have to add code here.
 	return ck
@@ -73,13 +72,13 @@ func (ck *Clerk) PutAppend(key string, value string, op string) string {
 	return reply.Value
 }
 
-func (ck *Clerk) getId() string {
+func (ck *Clerk) getId() int {
 	ck.mu.Lock()
 	id := ck.curId
 	ck.curId += 1
 	ck.mu.Unlock()
 	converted := int(id)
-	return strconv.Itoa(converted)
+	return converted
 }
 
 func (ck *Clerk) Put(key string, value string) {

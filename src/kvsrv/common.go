@@ -4,7 +4,7 @@ package kvsrv
 type PutAppendArgs struct {
 	Key         string
 	Value       string
-	OperationId string
+	OperationId int
 	ClientId    string
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
@@ -17,7 +17,7 @@ type PutAppendReply struct {
 
 type GetArgs struct {
 	Key         string
-	OperationId string
+	OperationId int
 	ClientId    string
 	// You'll have to add definitions here.
 }

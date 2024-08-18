@@ -255,7 +255,7 @@ func GenericTest(t *testing.T, nclients int, unreliable bool, randomkeys bool) {
 							}
 						}
 						if inHistory(nv, l) {
-							t.Fatalf("error: new value %v in returned values\n%v\n", nv, l)
+							t.Fatalf("error: new value %v in returned values\n%v ; clientId: %d\n", nv, l, myck.clientId)
 						}
 						last = NextValue(last, nv)
 					}
