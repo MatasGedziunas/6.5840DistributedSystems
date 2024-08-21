@@ -2,6 +2,7 @@ package kvsrv
 
 import (
 	"crypto/rand"
+	"log"
 	"math/big"
 	"strconv"
 	"sync"
@@ -62,12 +63,13 @@ func (ck *Clerk) Get(key string) string {
 // must match the declared types of the RPC handler function's
 // arguments. and reply must be passed as a pointer.
 func (ck *Clerk) PutAppend(key string, value string, op string) string {
-	// You will have to modify this function.
 	args := PutAppendArgs{Key: key, Value: value, OperationId: ck.getId(), ClientId: strconv.Itoa(int(ck.clientId))}
 	reply := PutAppendReply{}
+	log.Printf("Client %v Operation id %v Sending %s request: Key %s Value %s", ck.clientId, args.OperationId, op, args.Key, args.Value)
 	ok := ck.server.Call("KVServer."+op, &args, &reply)
 	for !ok {
 		ok = ck.server.Call("KVServer."+op, &args, &reply)
+		log.Printf("RETTRYING: Client %v Operation id %v Sending %s request: Key %s Value %s", ck.clientId, args.OperationId, op, args.Key, args.Value)
 	}
 	return reply.Value
 }
