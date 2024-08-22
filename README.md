@@ -41,8 +41,21 @@ In different terminals:
 go run mrworker.go wc.so
 ```
 
-## Key-Value server with request duplicate detection
+## Key-Value server with request duplicate detection Lab2
 
 The code does not pass the tests, but I have no clue what is wrong, tell me :P
 
 In folder: src/kvsrv
+
+## Raft Lab3
+
+In file util.go it is possible to turn debugging on or off.
+
+### Leader-election
+
+Implemented leader-election and heartbeat sending functionality, you can test this code by running:
+
+```
+cd src/raft
+go test -race -run 3A
+```
