@@ -5,7 +5,7 @@ import (
 )
 
 // Debugging
-const Debug = false
+const Debug = true
 
 func DPrintf(format string, a ...interface{}) {
 	if Debug {
@@ -21,6 +21,14 @@ func Max(a, b int) int {
 	}
 }
 
-// func VotesNeeded(peerCount int) int {
-// 	return peerCount/2 + 1
-// }
+func Min(a, b int) int {
+	if a > b {
+		return b
+	} else {
+		return a
+	}
+}
+
+func CountNeeded(peerCount int) int {
+	return peerCount/2 + 1
+}
