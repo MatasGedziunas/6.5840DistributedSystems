@@ -8,12 +8,14 @@ package raft
 // test with the original before submitting.
 //
 
-import "testing"
-import "fmt"
-import "time"
-import "math/rand"
-import "sync/atomic"
-import "sync"
+import (
+	"fmt"
+	"math/rand"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+)
 
 // The tester generously allows solutions to complete elections in one second
 // (much more than the paper's range of timeouts).
@@ -192,7 +194,6 @@ func TestFollowerFailure3B(t *testing.T) {
 	// disconnect one follower from the network.
 	leader1 := cfg.checkOneLeader()
 	cfg.disconnect((leader1 + 1) % servers)
-
 	// the leader and remaining follower should be
 	// able to agree despite the disconnected follower.
 	cfg.one(102, servers-1, false)
@@ -212,7 +213,7 @@ func TestFollowerFailure3B(t *testing.T) {
 	if index != 4 {
 		t.Fatalf("expected index 4, got %v", index)
 	}
-
+	fmt.Printf("Submited last command")
 	time.Sleep(2 * RaftElectionTimeout)
 
 	// check that command 104 did not commit.
